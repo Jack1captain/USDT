@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC/USDT 价格和成交量预警系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        #alert-box {
+            display: none;
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+            margin: 20px auto;
+            width: 300px;
+            text-align: center;
+        }
+        #price-display, #volume-display {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+        #price-display {
+            color: #4CAF50;
+        }
+        #volume-display {
+            color: #FF9800;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>BTC/USDT 价格和成交量预警系统</h1>
+    <p>系统将每30秒自动检查5分钟内的BTC/USDT成交量。如果成交量超过200个，将触发预警。</p>
+    <div id="alert-box">成交量超过200个BTC！</div>
+
+    <!-- 添加按钮 -->
+    <button onclick="fetchAndDisplayVolume()">点击获取当前5分钟成交量</button>
+    
+    <!-- 显示价格和成交量的区域 -->
+    <div id="price-display"></div>
+    <div id="volume-display"></div>
+
+    <!-- 添加音频文件 -->
+    <audio id="alert-sound" src="alert.mp3" preload="auto"></audio>
+
+    <script>
+        // Binance API URL 用于获取BTC/USDT的当前价格和5分钟K线数据
+        const priceUrl = 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT';
+        const volumeUrl = 'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1';
+
+        // 获取并显示最新价格
+        async function fetchAndDisplayPrice() {
+            try {
+                const response = await fetch(priceUrl);
+                const data = await response.json();
+                const currentPrice = parseFloat(data.price);
+
+                document.getElementById("price-display").innerText = `当前BTC/USDT价格: $${currentPrice.toFixed(2)}`;
+            } catch (error) {
+                console.error("获取价格数据失败: ", error);
+                document.getElementById("price-display").innerText = "获取价格失败，请稍后再试。";
+            }
+        }
+
+        // 获取并显示5分钟内的成交量，并检查是否超过200个BTC
+        async function fetchAndDisplayVolume() {
+            try {
+                const response = await fetch(volumeUrl);
+                const data = await response.json();
+                const volume = parseFloat(data[0][5]);  // 5分钟内的成交量
+
+                document.getElementById("volume-display").innerText = `5分钟内成交量: ${volume.toFixed(2)} BTC`;
+
+                // 如果成交量超过200，显示警告框并播放警告声音
+                if (volume >= 200) {
+                    document.getElementById("alert-box").style.display = "block";
+                    alert(`5分钟内成交量达到${volume.toFixed(2)}个BTC!`);
+
+                    // 播放警告声音
+                    document.getElementById("alert-sound").play();
+
+                    // 触发震动
+                    triggerVibration();
+                } else {
+                    document.getElementById("alert-box").style.display = "none";
+                }
+            } catch (error) {
+                console.error("获取成交量数据失败: ", error);
+                document.getElementById("volume-display").innerText = "获取成交量失败，请稍后再试。";
+            }
+        }
+
+        // 触发设备震动
+        function triggerVibration() {
+            if (navigator.vibrate) {
+                // 振动模式: 振动500毫秒，然后停止100毫秒，再振动500毫秒
+                navigator.vibrate([500, 100, 500]);
+            } else {
+                console.log("当前设备不支持振动功能");
+            }
+        }
+
+        // 每30秒自动获取数据
+        setInterval(fetchAndDisplayVolume, 30000);  // 30000毫秒 = 30秒
+
+        // 页面加载时，首次调用获取价格和成交量
+        window.onload = function() {
+            fetchAndDisplayPrice();
+            fetchAndDisplayVolume();
+        }
+    </script>
+</body>
+</html>
