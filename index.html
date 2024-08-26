@@ -55,8 +55,15 @@
     <!-- 添加音频文件 -->
     <audio id="alert-sound" src="alert.mp3" preload="auto"></audio>
 
-    <script>
-        // Binance API URL 用于获取BTC/USDT的当前价格和5分钟K线数据
+    <!-- EmailJS Script -->
+    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // 初始化 EmailJS
+        (function() {
+            emailjs.init("0-sGmhL9OJJkFkEkY"); // 将YOUR_USER_ID替换为你的EmailJS用户ID
+        })();
+        
+        // Binance API URLs
         const priceUrl = 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT';
         const volumeUrl = 'https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&limit=1';
 
@@ -66,7 +73,6 @@
                 const response = await fetch(priceUrl);
                 const data = await response.json();
                 const currentPrice = parseFloat(data.price);
-
                 document.getElementById("price-display").innerText = `当前BTC/USDT价格: $${currentPrice.toFixed(2)}`;
             } catch (error) {
                 console.error("获取价格数据失败: ", error);
@@ -83,16 +89,12 @@
 
                 document.getElementById("volume-display").innerText = `5分钟内成交量: ${volume.toFixed(2)} BTC`;
 
-                // 如果成交量超过200，显示警告框并播放警告声音
-                if (volume >= 20) {
+                // 如果成交量超过200，显示警告框并播放警告声音，同时发送邮件
+                if (volume >= 200) {
                     document.getElementById("alert-box").style.display = "block";
                     alert(`5分钟内成交量达到${volume.toFixed(2)}个BTC!`);
-
-                    // 播放警告声音
                     document.getElementById("alert-sound").play();
-
-                    // 触发震动
-                    triggerVibration();
+                    sendEmailAlert(volume);
                 } else {
                     document.getElementById("alert-box").style.display = "none";
                 }
@@ -102,18 +104,21 @@
             }
         }
 
-        // 触发设备震动
-        function triggerVibration() {
-            if (navigator.vibrate) {
-                // 振动模式: 振动500毫秒，然后停止100毫秒，再振动500毫秒
-                navigator.vibrate([500, 100, 500]);
-            } else {
-                console.log("当前设备不支持振动功能");
-            }
+        // 发送邮件提醒
+        function sendEmailAlert(volume) {
+            emailjs.send("service_xvcjo17", "template_jtyepvh", {
+                volume: volume,  // 传递成交量信息
+                message: `5分钟内成交量达到${volume.toFixed(2)}个BTC!`
+            })
+            .then(function(response) {
+                console.log('邮件发送成功', response.status, response.text);
+            }, function(error) {
+                console.log('邮件发送失败', error);
+            });
         }
 
         // 每30秒自动获取数据
-        setInterval(fetchAndDisplayVolume, 10000);  // 30000毫秒 = 30秒
+        setInterval(fetchAndDisplayVolume, 30000);  // 30000毫秒 = 30秒
 
         // 页面加载时，首次调用获取价格和成交量
         window.onload = function() {
