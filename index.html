@@ -84,7 +84,7 @@
                 document.getElementById("volume-display").innerText = `5分钟内成交量: ${volume.toFixed(2)} BTC`;
 
                 // 如果成交量超过200，显示警告框并播放警告声音
-                if (volume >= 50) {
+                if (volume >= 20) {
                     document.getElementById("alert-box").style.display = "block";
                     alert(`5分钟内成交量达到${volume.toFixed(2)}个BTC!`);
 
