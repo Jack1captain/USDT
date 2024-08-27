@@ -90,7 +90,7 @@
                 document.getElementById("volume-display").innerText = `5分钟内成交量: ${volume.toFixed(2)} BTC`;
 
                 // 如果成交量超过200，显示警告框并播放警告声音，同时发送邮件
-                if (volume >= 200) {
+                if (volume >= 100) {
                     document.getElementById("alert-box").style.display = "block";
                     alert(`5分钟内成交量达到${volume.toFixed(2)}个BTC!`);
                     document.getElementById("alert-sound").play();
@@ -118,7 +118,7 @@
         }
 
         // 每30秒自动获取数据
-        setInterval(fetchAndDisplayVolume, 30000);  // 30000毫秒 = 30秒
+        setInterval(fetchAndDisplayVolume, 10000);  // 30000毫秒 = 30秒
 
         // 页面加载时，首次调用获取价格和成交量
         window.onload = function() {
