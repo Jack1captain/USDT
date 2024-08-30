@@ -97,7 +97,7 @@
                 document.getElementById("volume-display").innerText = `5分钟内成交量: ${volume.toFixed(2)} BTC`;
 
                 // 如果成交量超过200，显示警告框并播放警告声音，同时发送邮件
-                if (volume >= 150 && canSendEmail()) {
+                if (volume >= 100 && canSendEmail()) {
                     document.getElementById("alert-box").style.display = "block";
                     alert(`5分钟内成交量达到${volume.toFixed(2)}个BTC!`);
                     document.getElementById("alert-sound").play();
@@ -128,7 +128,7 @@
         // 判断是否可以发送邮件
         function canSendEmail() {
             const now = Date.now();
-            const fiveMinutes = 5 * 60 * 1000; // 5分钟 = 300000毫秒
+            const fiveMinutes = 10 * 60 * 1000; // 5分钟 = 300000毫秒
             return (now - lastEmailTime) > fiveMinutes;
         }
 
